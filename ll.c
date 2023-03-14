@@ -99,6 +99,7 @@ void create_first_item(linked_list_p list, list_item_p item)
 int add_item_to_position(linked_list_p list, struct contact_data *data, unsigned position)
 {
 	// returns position if insertion was successful, otherwise returns 0
+
 	list_item_p item;
 	list_item_p previous;
 	list_item_p head;
@@ -124,7 +125,7 @@ int add_item_to_position(linked_list_p list, struct contact_data *data, unsigned
 		return 0;
 	}
 
-	return position; // temp solution, later change to insert position or 0 for error
+	return position;
 }
 
 int add_item_to_end(linked_list_p list, struct contact_data *data)
@@ -163,7 +164,7 @@ int delete_item_by_position(linked_list_p list, int position)
 	return position;
 }
 
-void map_list(linked_list_p list, void (*foreach_function)(void *))
+void map_list(linked_list_p list, int (*foreach_function)(void *list_item, void *args), void *foreach_args)
 {
 	list_item_p head = list->head;
 	list_item_p current_item = head;
@@ -171,13 +172,15 @@ void map_list(linked_list_p list, void (*foreach_function)(void *))
 
 	while (next_item != head) {
 		next_item = current_item->next;
-		foreach_function((void *) current_item);
+		if (foreach_function((void *) current_item, foreach_args))
+			break;
 		current_item = next_item;
 	}
 }
 
-void print_list_item(void *void_item_pointer)
+int _foreach_print_item(void *void_item_pointer, void *args)
 {
+	(void) args; // feels like money laundering lol :D
 	char *separator = "---------------------";
 	list_item_p item = (list_item_p) void_item_pointer;
 
@@ -186,30 +189,80 @@ void print_list_item(void *void_item_pointer)
 	printf("email: %s\n", item->email);
 	printf("phone: %s\n", item->phone);
 	printf("%s\n", separator);
+
+	return 0;
+}
+
+int _foreach_delete_item(void *void_item_pointer, void *args)
+{
+	// wrapper is neccessary because "foreach" functions are expected to return a signal
+	(void) args;
+	free(void_item_pointer);
+	return 0;
+}
+
+struct _foreach_find_item_args {
+	struct contact_data *data;
+	list_item_p match_address;
+};
+
+int _match_contact(char **query_data, char **item_data, int data_size)
+{
+	for (int i = 0; i < data_size; i++) {
+		if (query_data[i] && strcmp(query_data[i], item_data[i]))
+			return 0;
+	}
+	return 1;
+}
+
+int _foreach_find_item(void *void_item_pointer, void *args)
+{
+	struct _foreach_find_item_args *shuffle = (struct _foreach_find_item_args *) args;
+	list_item_p item = (list_item_p) void_item_pointer;
+	int match;
+
+	char *query_data[] = {
+		shuffle->data->name,
+		shuffle->data->surname,
+		shuffle->data->email,
+		shuffle->data->phone
+	};
+	char *item_data[] = {
+		item->name,
+		item->surname,
+		item->email,
+		item->phone
+	};
+	
+	match = _match_contact(query_data, item_data, sizeof(query_data) / sizeof(query_data[0]));
+
+	if (match)
+		shuffle->match_address = item;
+
+	return match;
 }
 
 void print_list(linked_list_p list)
 {
-	map_list(list, print_list_item);
+	map_list(list, _foreach_print_item, NULL);
 }
 
 void delete_list(linked_list_p list)
 {
-	map_list(list, free);
+	map_list(list, _foreach_delete_item, NULL);
 	free(list);
 }
 
-/*
-list_item_p find_list_item_by_vals(list_item_p list, char *name, char *surname, char *email, char *phone)
+list_item_p match_item_by_data(linked_list_p list, char *name, char *surname, char *email, char *phone)
 {
-	list_item_p current_item = NULL;
-	list_item_p head = list->head;
+	struct contact_data data = {name, surname, email, phone};
+	list_item_p match = NULL; 
+	struct _foreach_find_item_args args = {&data, match};
 
-	while (current_item != head) {
-		current_item = 
-	}
+	map_list(list, _foreach_find_item, &args); 
+
+	return args.match_address;
 }
-*/
 
 int main(void)
 {
@@ -234,11 +287,14 @@ int main(void)
 	/////////////////// DELETES ////////////////
 	delete_position = delete_item_by_position(address_book, 4);
 	delete_position = delete_item_by_position(address_book, 10); // supposed to fail because out of bounds
-	//raise(SIGTRAP);
 
 	////////////////// MAPS ///////////////////
 	print_list(address_book);
+	//raise(SIGTRAP);
+	list_item_p match = match_item_by_data(address_book, "1Virginijus", NULL, NULL, NULL);
+	printf("match: %p, name: %s\n", match, match->name);
 	delete_list(address_book);
+
 }
 
 
@@ -258,7 +314,9 @@ Your program should have this functionality:
     -Delete address indicating its position in the book
     -Delete whole address book
     -Find address by position
-    Find address by name, surname, email or phone number
+
+    // could use some additional testing
+    -Find address by name, surname, email or phone number
 
 All the addresses must be entered by the user.
 */
