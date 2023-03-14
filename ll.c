@@ -297,6 +297,14 @@ int main(void)
 
 }
 
+/*
+**************** TODOS **************
+- haven't checked valgrind and cppcheck after recent changes
+- need more tests to make sure "match_item_by_data" is working properly
+- need to split to different files
+- need to clean up main and move to some sort of testfile
+*/
+
 
 /*
 Address book should save this information:
