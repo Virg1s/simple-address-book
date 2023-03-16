@@ -8,26 +8,23 @@
 #define EMAIL_MAX 100
 #define PHONE_MAX 30
 
+typedef struct contact_data {
+	char *name;
+	char *surname;
+	char *email;
+	char *phone;
+} item_data_s;
+
 typedef struct list_item_s {
 	struct list_item_s *next;
 	struct list_item_s *prev;
-	char name[NAME_MAX];
-	char surname[SURNAME_MAX];
-	char email[EMAIL_MAX];
-	char phone[PHONE_MAX];
+	item_data_s data;
 } *list_item_p;
 
 typedef struct linked_list_s {
 	list_item_p head;
 	int length;
 } *linked_list_p;
-
-struct contact_data {
-	char *name;
-	char *surname;
-	char *email;
-	char *phone;
-};
 
 linked_list_p init_list(void)
 {
@@ -76,15 +73,17 @@ void insert_before(linked_list_p list, list_item_p subsequent, list_item_p new)
 	list->length++;
 }
 
-list_item_p init_item(struct contact_data *data)
+list_item_p init_item(item_data_s *data)
 {
 	list_item_p item = malloc(sizeof(struct list_item_s)); 	
 
+	memcpy(&item->data, data, sizeof(item_data_s));
+/*
 	strcpy(item->name, data->name);
 	strcpy(item->surname, data->surname);
 	strcpy(item->email, data->email);
 	strcpy(item->phone, data->phone);
-
+*/
 	return item;
 }
 
@@ -96,7 +95,7 @@ void create_first_item(linked_list_p list, list_item_p item)
 	list->length++;
 }
 
-int add_item_to_position(linked_list_p list, struct contact_data *data, unsigned position)
+int add_item_to_position(linked_list_p list, item_data_s *data, unsigned position)
 {
 	// returns position if insertion was successful, otherwise returns 0
 
@@ -128,7 +127,7 @@ int add_item_to_position(linked_list_p list, struct contact_data *data, unsigned
 	return position;
 }
 
-int add_item_to_end(linked_list_p list, struct contact_data *data)
+int add_item_to_end(linked_list_p list, item_data_s *data)
 {
 	// returns 0 on success 1 on failure
 
@@ -184,10 +183,10 @@ int _foreach_print_item(void *void_item_pointer, void *args)
 	char *separator = "---------------------";
 	list_item_p item = (list_item_p) void_item_pointer;
 
-	printf("name: %s\n", item->name);
-	printf("surname: %s\n", item->surname);
-	printf("email: %s\n", item->email);
-	printf("phone: %s\n", item->phone);
+	printf("name: %s\n", item->data.name);
+	printf("surname: %s\n", item->data.surname);
+	printf("email: %s\n", item->data.email);
+	printf("phone: %s\n", item->data.phone);
 	printf("%s\n", separator);
 
 	return 0;
@@ -202,14 +201,14 @@ int _foreach_delete_item(void *void_item_pointer, void *args)
 }
 
 struct _foreach_find_item_args {
-	struct contact_data *data;
+	item_data_s *data;
 	list_item_p match_address;
 };
 
-int _match_contact(char **query_data, char **item_data, int data_size)
+int _match_contact(char **query_strings, char **item_strings, int query_size)
 {
-	for (int i = 0; i < data_size; i++) {
-		if (query_data[i] && strcmp(query_data[i], item_data[i]))
+	for (int i = 0; i < query_size; i++) {
+		if (query_strings[i] && strcmp(query_strings[i], item_strings[i]))
 			return 0;
 	}
 	return 1;
@@ -221,20 +220,20 @@ int _foreach_find_item(void *void_item_pointer, void *args)
 	list_item_p item = (list_item_p) void_item_pointer;
 	int match;
 
-	char *query_data[] = {
+	char *query_strings[] = {
 		shuffle->data->name,
 		shuffle->data->surname,
 		shuffle->data->email,
 		shuffle->data->phone
 	};
-	char *item_data[] = {
-		item->name,
-		item->surname,
-		item->email,
-		item->phone
+	char *item_strings[] = {
+		item->data.name,
+		item->data.surname,
+		item->data.email,
+		item->data.phone
 	};
 	
-	match = _match_contact(query_data, item_data, sizeof(query_data) / sizeof(query_data[0]));
+	match = _match_contact(query_strings, item_strings, sizeof(query_strings) / sizeof(query_strings[0]));
 
 	if (match)
 		shuffle->match_address = item;
@@ -253,11 +252,10 @@ void delete_list(linked_list_p list)
 	free(list);
 }
 
-list_item_p match_item_by_data(linked_list_p list, char *name, char *surname, char *email, char *phone)
+list_item_p match_item_by_data(linked_list_p list, item_data_s *data)
 {
-	struct contact_data data = {name, surname, email, phone};
 	list_item_p match = NULL; 
-	struct _foreach_find_item_args args = {&data, match};
+	struct _foreach_find_item_args args = {data, match};
 
 	map_list(list, _foreach_find_item, &args); 
 
@@ -291,8 +289,10 @@ int main(void)
 	////////////////// MAPS ///////////////////
 	print_list(address_book);
 	//raise(SIGTRAP);
-	list_item_p match = match_item_by_data(address_book, "1Virginijus", NULL, NULL, NULL);
-	printf("match: %p, name: %s\n", match, match->name);
+
+	item_data_s query = {"1Virginijus", NULL, NULL, NULL};
+	list_item_p match = match_item_by_data(address_book, &query);
+	printf("match: %p, name: %s\n", match, match->data.name);
 	delete_list(address_book);
 
 }
