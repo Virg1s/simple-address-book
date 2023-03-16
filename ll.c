@@ -9,10 +9,10 @@
 #define PHONE_MAX 30
 
 typedef struct contact_data {
-	char *name;
-	char *surname;
-	char *email;
-	char *phone;
+	char name[NAME_MAX];
+	char surname[SURNAME_MAX];
+	char email[EMAIL_MAX];
+	char phone[PHONE_MAX];
 } item_data_s;
 
 typedef struct list_item_s {
@@ -208,7 +208,7 @@ struct _foreach_find_item_args {
 int _match_contact(char **query_strings, char **item_strings, int query_size)
 {
 	for (int i = 0; i < query_size; i++) {
-		if (query_strings[i] && strcmp(query_strings[i], item_strings[i]))
+		if (query_strings[i][0] && strcmp(query_strings[i], item_strings[i]))
 			return 0;
 	}
 	return 1;
@@ -290,7 +290,7 @@ int main(void)
 	print_list(address_book);
 	//raise(SIGTRAP);
 
-	item_data_s query = {"1Virginijus", NULL, NULL, NULL};
+	item_data_s query = {"1Virginijus", "", "", ""};
 	list_item_p match = match_item_by_data(address_book, &query);
 	printf("match: %p, name: %s\n", match, match->data.name);
 	delete_list(address_book);
