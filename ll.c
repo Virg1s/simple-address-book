@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+//#include "item_data.h"
 
+///*
 #define NAME_MAX 50
 #define SURNAME_MAX 50
 #define EMAIL_MAX 100
@@ -14,6 +16,7 @@ typedef struct contact_data {
 	char email[EMAIL_MAX];
 	char phone[PHONE_MAX];
 } item_data_s;
+//*/
 
 typedef struct list_item_s {
 	struct list_item_s *next;
@@ -28,7 +31,7 @@ typedef struct linked_list_s {
 
 linked_list_p init_list(void)
 {
-	linked_list_p list = malloc(sizeof(struct linked_list_s));
+	linked_list_p list = malloc(sizeof(*list));
 	return list;
 }
 
@@ -75,15 +78,13 @@ void insert_before(linked_list_p list, list_item_p subsequent, list_item_p new)
 
 list_item_p init_item(item_data_s *data)
 {
-	list_item_p item = malloc(sizeof(struct list_item_s)); 	
+	list_item_p item = malloc(sizeof(*item)); 	
 
-	memcpy(&item->data, data, sizeof(item_data_s));
-/*
-	strcpy(item->name, data->name);
-	strcpy(item->surname, data->surname);
-	strcpy(item->email, data->email);
-	strcpy(item->phone, data->phone);
-*/
+	if (item == NULL)
+		return NULL;
+
+	item->data = *data;
+
 	return item;
 }
 
