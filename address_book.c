@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "item_data.h"
-
-#include <signal.h>
+#include "linked_list.h"
+#include <signal.h> //temp
 
 #define FILE_PATH_MAX 150
 #define CSV_LINE_COUNT_MAX 1000
@@ -33,12 +33,9 @@ FILE *open_file(char *filename)
 	return data_file;
 }
 
-item_data_s *parse_line(char *line_buffer)
+item_data_s *parse_line(char *line_buffer, item_data_s *item)
 {
-	item_data_s *item;
 	char *fields[CSV_NUM_ENTRIES_PER_LINE];
-
-	//raise(SIGTRAP);
 
 	fields[0] = strtok(line_buffer, ",");
 	fields[1] = strtok(NULL, ",");
@@ -49,7 +46,6 @@ item_data_s *parse_line(char *line_buffer)
 		if (fields[i] == NULL)
 			return NULL; 
 
-	item = malloc(sizeof(*item));
 	strcpy(item->name, fields[0]);
 	strcpy(item->surname, fields[1]); 
 	strcpy(item->email, fields[2]);
@@ -58,30 +54,108 @@ item_data_s *parse_line(char *line_buffer)
 	return item;
 }
 
-item_data_s **read_data(FILE *data_file)
+int read_data(FILE *data_file, linked_list_p address_book)
 {
+	// returns number of items added to address book
 	char line_buffer[CSV_MAX_LINE_LENGTH];
-	// should replace the item_buffer with linked list initialisation
-	item_data_s **item_buffer = malloc(sizeof(*item_buffer) * CSV_LINE_COUNT_MAX);
-	item_data_s *current_item;
+	item_data_s current_item;
 	int item_counter = 0;
 
 	while (fgets(line_buffer, CSV_MAX_LINE_LENGTH, data_file)) {
-		current_item = parse_line(line_buffer);
-
-		if (current_item == NULL)
+		if(parse_line(line_buffer, &current_item))
 			break;
 
-		item_buffer[item_counter++] = current_item;
+		add_item_to_end(address_book, &current_item);
+		item_counter++;
 	}
-	
-	if (item_counter == 0) {
-		free(item_buffer);
-		item_buffer = NULL;
-	}
-
-	return item_buffer;
+	return item_counter;
 }
+
+int _foreach_print_item(void *void_item_pointer, void *args)
+{
+	(void) args; // feels like money laundering lol :D
+	char *separator = "---------------------";
+	list_item_p item = (list_item_p) void_item_pointer;
+
+	printf("name: %s\n", item->data.name);
+	printf("surname: %s\n", item->data.surname);
+	printf("email: %s\n", item->data.email);
+	printf("phone: %s\n", item->data.phone);
+	printf("%s\n", separator);
+
+	return 0;
+}
+
+int _foreach_delete_item(void *void_item_pointer, void *args)
+{
+	// wrapper is neccessary because "foreach" functions are expected to return a signal
+	(void) args;
+	free(void_item_pointer);
+	return 0;
+}
+
+struct _foreach_find_item_args {
+	item_data_s *data;
+	list_item_p match_address;
+};
+
+int _match_contact(char **query_strings, char **item_strings, int query_size)
+{
+	for (int i = 0; i < query_size; i++) {
+		if (query_strings[i][0] && strcmp(query_strings[i], item_strings[i]))
+			return 0;
+	}
+	return 1;
+}
+
+int _foreach_find_item(void *void_item_pointer, void *args)
+{
+	struct _foreach_find_item_args *shuffle = (struct _foreach_find_item_args *) args;
+	list_item_p item = (list_item_p) void_item_pointer;
+	int match;
+
+	char *query_strings[] = {
+		shuffle->data->name,
+		shuffle->data->surname,
+		shuffle->data->email,
+		shuffle->data->phone
+	};
+	char *item_strings[] = {
+		item->data.name,
+		item->data.surname,
+		item->data.email,
+		item->data.phone
+	};
+	
+	match = _match_contact(query_strings, item_strings, sizeof(query_strings) / sizeof(query_strings[0]));
+
+	if (match)
+		shuffle->match_address = item;
+
+	return match;
+}
+
+void print_list(linked_list_p list)
+{
+	map_list(list, _foreach_print_item, NULL);
+}
+
+void delete_list(linked_list_p list)
+{
+	map_list(list, _foreach_delete_item, NULL);
+	free(list);
+}
+
+list_item_p match_item_by_data(linked_list_p list, item_data_s *data)
+{
+	list_item_p match = NULL; 
+	struct _foreach_find_item_args args = {data, match};
+
+	map_list(list, _foreach_find_item, &args); 
+
+	return args.match_address;
+}
+
 
 /*
 not sure about the task saying that there must be at least 10 addresses
@@ -92,11 +166,9 @@ ant that program is supposed to continue it's work if the file does not exist
 
 int main()
 {
-	item_data_s **item_buffer;	
-
-	//FILE *okei = open_file("failure.example");
+	linked_list_p address_book = init_list();
 	FILE *okei = open_file("addresses.csv");
+	int number_of_contacts = read_data(okei, address_book);
 
-	item_buffer = read_data(okei);
 	return 0;
 }
