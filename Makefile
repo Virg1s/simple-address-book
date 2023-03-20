@@ -12,5 +12,6 @@ address_book: address_book.o linked_list.o
 
 .PHONY: clean
 clean:
-	$(RM) %.o 
+	$(RM) *.o
+	$(RM) address_book
 
