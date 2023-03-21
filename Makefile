@@ -1,17 +1,19 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra
+objects = address_book.o linked_list.o
 
 .PHONY: all
 all: address_book
 
-address_book: address_book.o linked_list.o
-	$(CC) $? -o $@
+.PHONY: fresh
+fresh: clean all
 
-%.o: %.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+.PHONY: debug
+debug: CFLAGS += -ggdb3
+debug: fresh
 
 .PHONY: clean
 clean:
-	$(RM) *.o
+	$(RM) $(wildcard *.o)
 	$(RM) address_book
 
+address_book: $(objects)

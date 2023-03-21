@@ -169,6 +169,7 @@ int main()
 	linked_list_p address_book = init_list();
 	FILE *okei = open_file("addresses.csv");
 	int number_of_contacts = read_data(okei, address_book);
+	//prntf("num of contacts: %d\n", number_of_contacts);
 
 	return 0;
 }
