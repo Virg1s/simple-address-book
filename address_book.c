@@ -62,7 +62,7 @@ int read_data(FILE *data_file, linked_list_p address_book)
 	int item_counter = 0;
 
 	while (fgets(line_buffer, CSV_MAX_LINE_LENGTH, data_file)) {
-		if(parse_line(line_buffer, &current_item))
+		if(!parse_line(line_buffer, &current_item))
 			break;
 
 		add_item_to_end(address_book, &current_item);
@@ -71,22 +71,23 @@ int read_data(FILE *data_file, linked_list_p address_book)
 	return item_counter;
 }
 
-int _foreach_print_item(void *void_item_pointer, void *args)
+int foreach_print_item(void *void_item_pointer, void *args)
 {
 	(void) args; // feels like money laundering lol :D
 	char *separator = "---------------------";
+	char *indentation = "\t";
 	list_item_p item = (list_item_p) void_item_pointer;
 
-	printf("name: %s\n", item->data.name);
-	printf("surname: %s\n", item->data.surname);
-	printf("email: %s\n", item->data.email);
-	printf("phone: %s\n", item->data.phone);
-	printf("%s\n", separator);
+	printf("%sname: %s\n", indentation, item->data.name);
+	printf("%ssurname: %s\n", indentation, item->data.surname);
+	printf("%semail: %s\n", indentation, item->data.email);
+	printf("%sphone: %s\n", indentation, item->data.phone);
+	printf("%s%s\n", indentation, separator);
 
 	return 0;
 }
 
-int _foreach_delete_item(void *void_item_pointer, void *args)
+int foreach_delete_item(void *void_item_pointer, void *args)
 {
 	// wrapper is neccessary because "foreach" functions are expected to return a signal
 	(void) args;
@@ -94,7 +95,7 @@ int _foreach_delete_item(void *void_item_pointer, void *args)
 	return 0;
 }
 
-struct _foreach_find_item_args {
+struct foreach_find_item_args {
 	item_data_s *data;
 	list_item_p match_address;
 };
@@ -108,9 +109,9 @@ int _match_contact(char **query_strings, char **item_strings, int query_size)
 	return 1;
 }
 
-int _foreach_find_item(void *void_item_pointer, void *args)
+int foreach_find_item(void *void_item_pointer, void *args)
 {
-	struct _foreach_find_item_args *shuffle = (struct _foreach_find_item_args *) args;
+	struct foreach_find_item_args *shuffle = (struct foreach_find_item_args *) args;
 	list_item_p item = (list_item_p) void_item_pointer;
 	int match;
 
@@ -137,21 +138,21 @@ int _foreach_find_item(void *void_item_pointer, void *args)
 
 void print_list(linked_list_p list)
 {
-	map_list(list, _foreach_print_item, NULL);
+	map_list(list, foreach_print_item, NULL);
 }
 
 void delete_list(linked_list_p list)
 {
-	map_list(list, _foreach_delete_item, NULL);
+	map_list(list, foreach_delete_item, NULL);
 	free(list);
 }
 
 list_item_p match_item_by_data(linked_list_p list, item_data_s *data)
 {
 	list_item_p match = NULL; 
-	struct _foreach_find_item_args args = {data, match};
+	struct foreach_find_item_args args = {data, match};
 
-	map_list(list, _foreach_find_item, &args); 
+	map_list(list, foreach_find_item, &args); 
 
 	return args.match_address;
 }
@@ -169,7 +170,10 @@ int main()
 	linked_list_p address_book = init_list();
 	FILE *okei = open_file("addresses.csv");
 	int number_of_contacts = read_data(okei, address_book);
-	//prntf("num of contacts: %d\n", number_of_contacts);
+
+	printf("Num of contacts read from file: %d\n", number_of_contacts);
+	printf("Address book contents:\n\n");
+	print_list(address_book);
 
 	return 0;
 }
