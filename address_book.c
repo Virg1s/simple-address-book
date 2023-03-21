@@ -73,7 +73,7 @@ int read_data(FILE *data_file, linked_list_p address_book)
 
 int foreach_print_item(void *void_item_pointer, void *args)
 {
-	(void) args; // feels like money laundering lol :D
+	(void) args;
 	char *separator = "---------------------";
 	char *indentation = "\t";
 	list_item_p item = (list_item_p) void_item_pointer;
@@ -174,6 +174,7 @@ int main()
 	printf("Num of contacts read from file: %d\n", number_of_contacts);
 	printf("Address book contents:\n\n");
 	print_list(address_book);
+	delete_list(address_book);
 
 	return 0;
 }

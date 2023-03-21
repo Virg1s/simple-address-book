@@ -162,35 +162,3 @@ void map_list(linked_list_p list, int (*foreach_function)(void *list_item, void 
 		current_item = next_item;
 	}
 }
-
-/*
-**************** TODOS **************
-- haven't checked valgrind and cppcheck after recent changes
-- need more tests to make sure "match_item_by_data" is working properly
-- need to split to different files
-- need to clean up main and move to some sort of testfile
-*/
-
-
-/*
-Address book should save this information:
-
-    Name
-    Surname
-    Email
-    Phone number
-
-Your program should have this functionality:
-
-    -Display all records in the address book
-    -Add new address to the book (to the end)
-    -Add new address indicating the position where to put it
-    -Delete address indicating its position in the book
-    -Delete whole address book
-    -Find address by position
-
-    // could use some additional testing
-    -Find address by name, surname, email or phone number
-
-All the addresses must be entered by the user.
-*/
