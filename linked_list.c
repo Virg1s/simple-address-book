@@ -3,27 +3,27 @@
 #include <string.h>
 #include "item_data.h"
 
-typedef struct list_item_s {
+typedef struct {
 	struct list_item_s *next;
 	struct list_item_s *prev;
-	item_data_s data;
-} *list_item_p;
+	item_data data;
+} list_item;
 
-typedef struct linked_list_s {
-	list_item_p head;
+typedef struct {
+	list_item *head;
 	int length;
-} *linked_list_p;
+} linked_list;
 
-linked_list_p init_list(void)
+linked_list *init_list(void)
 {
-	linked_list_p list = malloc(sizeof(*list));
+	linked_list *list = malloc(sizeof(*list));
 	return list;
 }
 
-list_item_p find_by_position(linked_list_p list, unsigned position)
+list_item *find_by_position(linked_list *list, unsigned position)
 {
-	list_item_p head = list->head;
-	list_item_p current_item = head;
+	list_item *head = list->head;
+	list_item *current_item = head;
 
 	if (!head) 
 		return NULL;
@@ -40,7 +40,7 @@ list_item_p find_by_position(linked_list_p list, unsigned position)
 	return current_item;
 }
 
-void insert_after(linked_list_p list, list_item_p previous, list_item_p new)
+void insert_after(linked_list *list, list_item *previous, list_item *new)
 {
 	new->prev = previous;
 	new->next = previous->next;
@@ -49,7 +49,7 @@ void insert_after(linked_list_p list, list_item_p previous, list_item_p new)
 	list->length++;
 }
 
-void insert_before(linked_list_p list, list_item_p subsequent, list_item_p new)
+void insert_before(linked_list *list, list_item *subsequent, list_item *new)
 {
 	new->next = subsequent;
 	new->prev = subsequent->prev;
@@ -61,9 +61,9 @@ void insert_before(linked_list_p list, list_item_p subsequent, list_item_p new)
 	list->length++;
 }
 
-list_item_p init_item(item_data_s *data)
+list_item *init_item(item_data_s *data)
 {
-	list_item_p item = malloc(sizeof(*item)); 	
+	list_item *item = malloc(sizeof(*item)); 	
 
 	if (item == NULL)
 		return NULL;
@@ -73,7 +73,7 @@ list_item_p init_item(item_data_s *data)
 	return item;
 }
 
-void create_first_item(linked_list_p list, list_item_p item)
+void create_first_item(linked_list *list, list_item *item)
 {
 	item->next = item;
 	item->prev = item;
@@ -81,13 +81,13 @@ void create_first_item(linked_list_p list, list_item_p item)
 	list->length++;
 }
 
-int add_item_to_position(linked_list_p list, item_data_s *data, unsigned position)
+int add_item_to_position(linked_list *list, item_data_s *data, unsigned position)
 {
 	// returns position if insertion was successful, otherwise returns 0
 
-	list_item_p item;
-	list_item_p previous;
-	list_item_p head;
+	list_item *item;
+	list_item *previous;
+	list_item *head;
 
 	if (position < 1)
 		return 0;
@@ -113,12 +113,12 @@ int add_item_to_position(linked_list_p list, item_data_s *data, unsigned positio
 	return position;
 }
 
-int add_item_to_end(linked_list_p list, item_data_s *data)
+int add_item_to_end(linked_list *list, item_data_s *data)
 {
 	// returns 0 on success 1 on failure
 
-	list_item_p head = list->head;
-	list_item_p item = init_item(data);
+	list_item *head = list->head;
+	list_item *item = init_item(data);
 
 	if (!item)
 		return 1;
@@ -129,16 +129,16 @@ int add_item_to_end(linked_list_p list, item_data_s *data)
 	return 0;
 }
 
-void unlink_item(linked_list_p list, list_item_p item)
+void unlink_item(linked_list *list, list_item *item)
 {
 	item->next->prev = item->prev;
 	item->prev->next = item->next;
 	list->length--;
 }
 
-int delete_item_by_position(linked_list_p list, int position)
+int delete_item_by_position(linked_list *list, int position)
 {
-	list_item_p item = find_by_position(list, position);
+	list_item *item = find_by_position(list, position);
 
 	if (!item)
 		return 0;
@@ -149,11 +149,11 @@ int delete_item_by_position(linked_list_p list, int position)
 	return position;
 }
 
-void map_list(linked_list_p list, int (*foreach_function)(void *list_item, void *args), void *foreach_args)
+void map_list(linked_list *list, int (*foreach_function)(void *list_item, void *args), void *foreach_args)
 {
-	list_item_p head = list->head;
-	list_item_p current_item = head;
-	list_item_p next_item = NULL;
+	list_item *head = list->head;
+	list_item *current_item = head;
+	list_item *next_item = NULL;
 
 	while (next_item != head) {
 		next_item = current_item->next;
