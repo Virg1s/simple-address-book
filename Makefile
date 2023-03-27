@@ -1,5 +1,5 @@
 CFLAGS = -Wall -Wextra
-objects = address_book.o linked_list.o
+objects = address_book.o linked_list.o contact.o
 
 .PHONY: all
 all: address_book

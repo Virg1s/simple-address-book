@@ -6,13 +6,12 @@
 #define EMAIL_MAX 100
 #define PHONE_MAX 30
 
-struct contact_data {
+struct item_data {
         char name[NAME_MAX];
         char surname[SURNAME_MAX];
         char email[EMAIL_MAX];
         char phone[PHONE_MAX];
 };
 
-typedef struct contact_data item_data_s;
 
 #endif

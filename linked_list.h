@@ -1,22 +1,24 @@
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 
-typedef struct list_item_s {
-        struct list_item_s *next;
-        struct list_item_s *prev;
-        item_data_s data;
-} *list_item_p;
+#include "item_data.h"
 
-typedef struct linked_list_s {
-        list_item_p head;
+struct list_item {
+        struct list_item *next;
+        struct list_item *prev;
+        struct item_data data;
+};
+
+struct linked_list {
+        struct list_item *head;
         int length;
-} *linked_list_p;
+};
 
-linked_list_p init_list(void);
-list_item_p find_by_position(linked_list_p list, unsigned position);
-int add_item_to_position(linked_list_p list, item_data_s *data, unsigned position);
-int add_item_to_end(linked_list_p list, item_data_s *data);
-int delete_item_by_position(linked_list_p list, int position);
-void map_list(linked_list_p list, int (*foreach_function)(void *list_item, void *args), void *foreach_args);
+struct linked_list *init_list(void);
+struct list_item *find_by_position(struct linked_list *list, unsigned position);
+int add_item_to_position(struct linked_list *list, struct item_data *data, unsigned position);
+int add_item_to_end(struct linked_list *list, struct item_data *data);
+int delete_item_by_position(struct linked_list *list, int position);
+void map_list(struct linked_list *list, int (*foreach_function)(void *list_item, void *args), void *foreach_args);
 
 #endif
