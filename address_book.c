@@ -74,6 +74,24 @@ void delete_list(struct linked_list *list) {
   free(list);
 }
 
+int append_contact(struct linked_list *address_book, char *name, char *surname, char *email, char *phone)
+{
+	struct item_data contact;
+	char *fields[] = {name, surname, email, phone};
+
+	init_contact(&contact, fields);
+	return add_item_to_end(address_book, &contact);
+}
+
+int add_contact_to_position(struct linked_list *address_book, unsigned position, char *name, char *surname, char *email, char *phone)
+{
+	struct item_data contact;
+	char *fields[] = {name, surname, email, phone};
+
+	init_contact(&contact, fields);
+	return add_item_to_position(address_book, &contact, position);
+}
+
 /*
 not sure about the task saying that there must be at least 10 addresses
 ant that program is supposed to continue it's work if the file does not exist
@@ -86,6 +104,7 @@ int main() {
   struct linked_list *address_book = init_list();
   FILE *okei = open_file("addresses.csv");
   int number_of_contacts = read_data(okei, address_book);
+  char *name, *surname, *email, *phone;
 
   fclose(okei);
   printf("Num of contacts read from file: %d\n", number_of_contacts);
@@ -93,11 +112,15 @@ int main() {
   printf("Address book contents:\n\n");
   print_list(address_book);
   puts("#########################\n");
-  char *name = "vardenis2", *surname = "", *email = "", *phone = "";
+  name = "vardenis2", surname = "", email = "", phone = "";
   printf("Finding item by fields name : '%s', surname: '%s', email: '%s', phone: '%s'\n", name, surname, email, phone);
   find_item(address_book, name, surname, email, phone);
   puts("#########################\n");
-
+  printf("Adding item: '%s', surname: '%s', email: '%s', phone: '%s' to end\n", name, surname, email, phone);
+  name = "paskutinis_kontaktas", surname = "paskutine_pavarde", email = "paskutinis_emailas", phone = "paskutinis_telefonas";
+	append_contact(address_book, name, surname, email, phone);
+  printf("Address book contents:\n\n");
+  print_list(address_book);
   puts("#########################\n");
   delete_list(address_book);
   printf("contents after delete:\n\n");
