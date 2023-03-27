@@ -105,6 +105,7 @@ int main() {
   FILE *okei = open_file("addresses.csv");
   int number_of_contacts = read_data(okei, address_book);
   char *name, *surname, *email, *phone;
+  int position;
 
   fclose(okei);
   printf("Num of contacts read from file: %d\n", number_of_contacts);
@@ -116,12 +117,33 @@ int main() {
   printf("Finding item by fields name : '%s', surname: '%s', email: '%s', phone: '%s'\n", name, surname, email, phone);
   find_item(address_book, name, surname, email, phone);
   puts("#########################\n");
-  printf("Adding item: '%s', surname: '%s', email: '%s', phone: '%s' to end\n", name, surname, email, phone);
   name = "paskutinis_kontaktas", surname = "paskutine_pavarde", email = "paskutinis_emailas", phone = "paskutinis_telefonas";
+  printf("Adding item: '%s', surname: '%s', email: '%s', phone: '%s' to end\n", name, surname, email, phone);
 	append_contact(address_book, name, surname, email, phone);
   printf("Address book contents:\n\n");
   print_list(address_book);
   puts("#########################\n");
+  position = 2;
+  name = "antras_kontaktas", surname = "paskutine_pavarde", email = "antras_emailas", phone = "antras_telefonas";
+  printf("Adding item: '%s', surname: '%s', email: '%s', phone: '%s' to position %d\n", name, surname, email, phone, position);
+  add_contact_to_position(address_book, position, name, surname, email, phone);
+  printf("Address book contents:\n\n");
+  print_list(address_book);
+  puts("#########################\n");
+  position = 2;
+  printf("Deleting contact in position %d\n", position);
+  delete_item_by_position(address_book, position);
+  puts("Address book contents after deletion:\n");
+  print_list(address_book);
+  puts("#########################\n");
+  position = 99;
+  printf("Deleting contact in position %d\n", position);
+  delete_item_by_position(address_book, position);
+  puts("Address book contents after deletion:\n");
+  print_list(address_book);
+
+  puts("#########################\n");
+  puts("Deleting the whole address book\n");
   delete_list(address_book);
   printf("contents after delete:\n\n");
 
