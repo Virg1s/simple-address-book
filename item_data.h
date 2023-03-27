@@ -7,10 +7,10 @@
 #define PHONE_MAX 30
 
 struct item_data {
-  char name[NAME_MAX];
-  char surname[SURNAME_MAX];
-  char email[EMAIL_MAX];
-  char phone[PHONE_MAX];
+	char name[NAME_MAX];
+	char surname[SURNAME_MAX];
+	char email[EMAIL_MAX];
+	char phone[PHONE_MAX];
 };
 
 #endif
