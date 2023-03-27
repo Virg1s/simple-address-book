@@ -1,3 +1,4 @@
+#include "contact.h"
 #include "item_data.h"
 #include "linked_list.h"
 #include <stdio.h>

@@ -4,11 +4,6 @@
 #include "item_data.h"
 #include "linked_list.h"
 
-struct foreach_find_item_args {
-	struct item_data *data;
-	struct list_item *match_address;
-};
-
 void init_contact(struct item_data *item, char *fields[static 4]);
 struct list_item *match_item_by_data(struct linked_list *list,
 				     struct item_data *data);

@@ -1,18 +1,8 @@
+#include "linked_list.h"
 #include "item_data.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-struct list_item {
-	struct list_item *next;
-	struct list_item *prev;
-	struct item_data data;
-};
-
-struct linked_list {
-	struct list_item *head;
-	int length;
-};
 
 struct linked_list *init_list(void)
 {
