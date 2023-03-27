@@ -89,9 +89,18 @@ int main() {
 
   fclose(okei);
   printf("Num of contacts read from file: %d\n", number_of_contacts);
+  puts("#########################\n");
   printf("Address book contents:\n\n");
   print_list(address_book);
+  puts("#########################\n");
+  char *name = "vardenis2", *surname = "", *email = "", *phone = "";
+  printf("Finding item by fields name : '%s', surname: '%s', email: '%s', phone: '%s'\n", name, surname, email, phone);
+  find_item(address_book, name, surname, email, phone);
+  puts("#########################\n");
+
+  puts("#########################\n");
   delete_list(address_book);
+  printf("contents after delete:\n\n");
 
   return 0;
 }
