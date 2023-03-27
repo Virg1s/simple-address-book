@@ -17,6 +17,7 @@ struct linked_list {
 struct linked_list *init_list(void)
 {
 	struct linked_list *list = malloc(sizeof(*list));
+	memset(list, 0, sizeof(*list));
 	return list;
 }
 
@@ -161,3 +162,4 @@ void map_list(struct linked_list *list, int (*foreach_function)(void *list_item,
 		current_item = next_item;
 	}
 }
+

@@ -34,7 +34,7 @@ FILE *open_file(char *filename)
 	return data_file;
 }
 
-struct item_data *parse_line(char *line_buffer, struct item_data *item)
+int parse_line(char *line_buffer, struct item_data *item)
 {
 	char *fields[CSV_NUM_ENTRIES_PER_LINE];
 
@@ -45,14 +45,10 @@ struct item_data *parse_line(char *line_buffer, struct item_data *item)
 
 	for (int i = 0; i < CSV_NUM_ENTRIES_PER_LINE; i++)
 		if (fields[i] == NULL)
-			return NULL; 
+			return 1; 
 
-	strcpy(item->name, fields[0]);
-	strcpy(item->surname, fields[1]); 
-	strcpy(item->email, fields[2]);
-	strcpy(item->phone, fields[3]);
-
-	return item;
+	init_contact(item, fields);
+	return 0;
 }
 
 int read_data(FILE *data_file, struct linked_list *address_book)
@@ -63,7 +59,7 @@ int read_data(FILE *data_file, struct linked_list *address_book)
 	int item_counter = 0;
 
 	while (fgets(line_buffer, CSV_MAX_LINE_LENGTH, data_file)) {
-		if(!parse_line(line_buffer, &current_item))
+		if(parse_line(line_buffer, &current_item))
 			break;
 
 		add_item_to_end(address_book, &current_item);
@@ -104,3 +100,4 @@ int main()
 
 	return 0;
 }
+
