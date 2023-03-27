@@ -100,15 +100,7 @@ int add_contact_to_position(struct linked_list *address_book, unsigned position,
 	return add_item_to_position(address_book, &contact, position);
 }
 
-/*
-not sure about the task saying that there must be at least 10 addresses
-ant that program is supposed to continue it's work if the file does not exist
-        - so which one of those two conditions overrules?
-        - what should the program do if file does not exist? Be zombie process?
-Sleep and check for list every 20s?
-*/
-
-int main()
+int main(void)
 {
 	struct linked_list *address_book = init_list();
 	FILE *okei = open_file("addresses.csv");
