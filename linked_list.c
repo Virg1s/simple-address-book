@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define ERR_LAST_ITEM_DELETE "\nCan not delete last item on the list. If you wish to remove the list entirely, use appropriate function\n\n"
+
 struct linked_list *init_list(void)
 {
 	struct linked_list *list = malloc(sizeof(*list));
@@ -137,8 +139,18 @@ int delete_item_by_position(struct linked_list *list, int position)
 	if (!item)
 		return 0;
 
+	if (item == list->head) {
+		if (list->length >= 1) {
+			list->head = list->head->next;
+		} else {
+			fputs(ERR_LAST_ITEM_DELETE, stderr);
+			return 0;
+		}
+	}
+
 	unlink_item(list, item);
 	free(item);
+	list->length--;
 
 	return position;
 }
