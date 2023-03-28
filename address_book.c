@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #define FILE_PATH_MAX 150
 #define CSV_LINE_COUNT_MAX 1000
@@ -11,7 +12,7 @@
 #define CSV_NUM_ENTRIES_PER_LINE 4
 #define MENU_USER_INPUT_MAX_LENGTH 350
 
-
+struct linked_list *ADDRESS_BOOK_SINGLETON;
 
 FILE *open_file(char *filename)
 {
@@ -55,9 +56,10 @@ int parse_line(char *line_buffer, struct item_data *item)
 	return 0;
 }
 
-int read_data(FILE *data_file, struct linked_list *address_book)
+int read_data_from_file(char *filename, struct linked_list *address_book)
 {
 	// returns number of items added to address book
+	FILE *data_file = open_file(filename);
 	char line_buffer[CSV_MAX_LINE_LENGTH];
 	struct item_data current_item;
 	int item_counter = 0;
@@ -69,6 +71,12 @@ int read_data(FILE *data_file, struct linked_list *address_book)
 		add_item_to_end(address_book, &current_item);
 		item_counter++;
 	}
+
+	fclose(data_file);
+
+	printf("Num of contacts read from file: %d\n", item_counter);
+	puts("#########################\n");
+
 	return item_counter;
 }
 
@@ -80,6 +88,7 @@ void print_list(struct linked_list *list)
 	}
 
 	map_list(list, foreach_print_item, NULL);
+	puts("");
 }
 
 void delete_list(struct linked_list *list)
@@ -149,6 +158,24 @@ int get_args(char **arg_names, char **arg_buffers, int *arg_lengths)
 	return 0;
 }
 
+void ask_for_position(int *position)
+{
+	puts("enter position: ");
+	scanf("%d%*c", position);
+	fflush(stdin);
+}
+
+void clean_up_and_exit(int signum)
+{
+	if (signum == SIGINT) {
+		delete_list(ADDRESS_BOOK_SINGLETON);
+		printf("Address book deleted, goodbye!\n");
+		exit(0);
+	}
+
+	return ;
+}
+
 void execute_request(struct linked_list **address_book_pointer, int action_index)
 {
 	int position = -1;
@@ -163,28 +190,30 @@ void execute_request(struct linked_list **address_book_pointer, int action_index
 		print_list(address_book);
 		break;
 	case 1:
-		if (!get_args(arg_names, arg_buffers, arg_lengths))
-			append_contact(address_book, name, surname, email, phone);
-		print_list(address_book);
+		if (get_args(arg_names, arg_buffers, arg_lengths))
+			break;
+		find_item(address_book, name, surname, email, phone);
 		break;
 	case 2:
-		if (!get_args(arg_names, arg_buffers, arg_lengths)) {
-			puts("enter position: ");
-			scanf("%d%*c", &position);
-			fflush(stdin);
-			add_contact_to_position(address_book, position, name, surname, email, phone);
-			print_list(address_book);
-		}
+		if (get_args(arg_names, arg_buffers, arg_lengths))
+			break;
+		append_contact(address_book, name, surname, email, phone);
+		print_list(address_book);
 		break;
 	case 3:
-		puts("enter position: ");
-		scanf("%d%*c", &position);
-		fflush(stdin);
+		if (get_args(arg_names, arg_buffers, arg_lengths))
+			break;
+		ask_for_position(&position);
+		add_contact_to_position(address_book, position, name, surname, email, phone);
+		print_list(address_book);
+		break;
+	case 4:
+		ask_for_position(&position);
 		if (position >= 1)
 			delete_item_by_position(address_book, position);
 		print_list(address_book);
 		break;
-	case 4:
+	case 5:
 		delete_list(address_book);
 		*address_book_pointer = NULL;
 		printf("Address book deleted, goodbye!\n");
@@ -196,9 +225,10 @@ void prompt(struct linked_list **address_book)
 {
 	char *actions[] = {
 		"print contacts",
-		"append contact",
-		"add to",
-		"delete in",
+		"find by",
+		"create",
+		"create at",
+		"delete at",
 		"delete all",
 		NULL
 	};
@@ -212,25 +242,14 @@ void prompt(struct linked_list **address_book)
 
 int main(void)
 {
-	struct linked_list *address_book = init_list();
-	FILE *okei = open_file("addresses.csv");
-	int number_of_contacts = read_data(okei, address_book);
+	signal(SIGINT, clean_up_and_exit);
+	ADDRESS_BOOK_SINGLETON = init_list();
+	struct linked_list **address_book = &ADDRESS_BOOK_SINGLETON;
 
-	fclose(okei);
-	printf("Num of contacts read from file: %d\n", number_of_contacts);
-	puts("#########################\n");
+	read_data_from_file("addresses.csv", *address_book);
 
 	while(1)
-		prompt(&address_book);
-
-/*
-	print_list(address_book);
-	find_item(address_book, name, surname, email, phone);
-	append_contact(address_book, name, surname, email, phone);
-	add_contact_to_position(address_book, position, name, surname, email, phone);
-	delete_item_by_position(address_book, position);
-	delete_list(address_book);
-*/
+		prompt(address_book);
 
 	return 0;
 }
