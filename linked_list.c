@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ERR_LAST_ITEM_DELETE "\nCan not delete last item on the list. If you wish to remove the list entirely, use appropriate function\n\n"
+#define ERR_LAST_ITEM_DELETE \
+	"\nCan not delete last item on the list. If you wish to remove the list entirely, use appropriate function\n\n"
 
 struct linked_list *init_list(void)
 {

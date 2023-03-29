@@ -127,7 +127,7 @@ int get_user_input(char **actions, char user_input[MENU_USER_INPUT_MAX_LENGTH])
 		for (int i = 0; actions[i]; i++)
 			printf("  -%s\n", actions[i]);
 		puts("");
-		
+
 		fgets(user_input, MENU_USER_INPUT_MAX_LENGTH, stdin);
 		input_length = strlen(user_input);
 		user_input[input_length - 1] = '\0';
@@ -173,16 +173,18 @@ void clean_up_and_exit(int signum)
 		exit(0);
 	}
 
-	return ;
+	return;
 }
 
-void execute_request(struct linked_list **address_book_pointer, int action_index)
+void execute_request(struct linked_list **address_book_pointer,
+		     int action_index)
 {
 	int position = -1;
-	char name[NAME_MAX], surname[SURNAME_MAX], email[EMAIL_MAX], phone[PHONE_MAX];
-	char *arg_names[] = {"name", "surname", "email", "phone", NULL};
-	char *arg_buffers[] = {name, surname, email, phone};
-	int arg_lengths[] = {NAME_MAX, SURNAME_MAX, EMAIL_MAX, PHONE_MAX};
+	char name[NAME_MAX], surname[SURNAME_MAX], email[EMAIL_MAX],
+		phone[PHONE_MAX];
+	char *arg_names[] = { "name", "surname", "email", "phone", NULL };
+	char *arg_buffers[] = { name, surname, email, phone };
+	int arg_lengths[] = { NAME_MAX, SURNAME_MAX, EMAIL_MAX, PHONE_MAX };
 	struct linked_list *address_book = *address_book_pointer;
 
 	switch (action_index) {
@@ -204,7 +206,8 @@ void execute_request(struct linked_list **address_book_pointer, int action_index
 		if (get_args(arg_names, arg_buffers, arg_lengths))
 			break;
 		ask_for_position(&position);
-		add_contact_to_position(address_book, position, name, surname, email, phone);
+		add_contact_to_position(address_book, position, name, surname,
+					email, phone);
 		print_list(address_book);
 		break;
 	case 4:
@@ -224,13 +227,8 @@ void execute_request(struct linked_list **address_book_pointer, int action_index
 void prompt(struct linked_list **address_book)
 {
 	char *actions[] = {
-		"print contacts",
-		"find by",
-		"create",
-		"create at",
-		"delete at",
-		"delete all",
-		NULL
+		"print contacts", "find by",	"create", "create at",
+		"delete at",	  "delete all", NULL
 	};
 	char user_input[MENU_USER_INPUT_MAX_LENGTH];
 	int menu_item;
@@ -248,7 +246,7 @@ int main(void)
 
 	read_data_from_file("addresses.csv", *address_book);
 
-	while(1)
+	while (1)
 		prompt(address_book);
 
 	return 0;
