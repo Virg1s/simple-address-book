@@ -83,7 +83,10 @@ struct list_item *find_item(struct linked_list *list, char *name, char *surname,
 
 	map_list(list, foreach_find_item, &args);
 
-	foreach_print_item(args.match_address, NULL);
+	if (args.match_address)
+		foreach_print_item(args.match_address, NULL);
+	else
+		puts("\nno match found\n");
 
 	return args.match_address;
 }
