@@ -6,6 +6,7 @@ CC := gcc
 CFLAGS := -Wall -Wextra -c
 AR := ar
 ARFLAGS := rcs
+DYNAMIC_LIB_FLAGS := -fPIC
 
 LIB_FLAG := -L ..
 INCL_FLAG := -I ../../include
