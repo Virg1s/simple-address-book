@@ -4,11 +4,14 @@
 
 CC := gcc
 CFLAGS := -Wall -Wextra
+LDLIBS := -llist
 
 SRCDIR := src
 BUILDDIR := build
-LIB := -L lib
-INC := -I include
+LIBDIR := lib
+
+INCL_FLAG := -I include
+LDFLAGS := -L lib
 
 SRCEXT := c
 
@@ -46,15 +49,11 @@ vgd: all
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@echo " Building..."
 	@mkdir -p $(BUILDDIR)
-	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INCL_FLAG) -c -o $@ $<
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB) -O3
-
-# Tests
-tester:
-	$(CC) $(CFLAGS) test/tester.cpp $(INC) $(LIB) -o bin/tester
+	$(CC) $^ -o $(TARGET) $(LDLIBS) $(LDFLAGS)
 
 #################################
 ## CLEANUP   ####################
@@ -63,5 +62,5 @@ tester:
 .PHONY: clean
 clean:
 	@echo " Cleaning..."; 
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
+	$(RM) -r $(BUILDDIR) $(TARGET)
 
