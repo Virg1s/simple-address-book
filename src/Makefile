@@ -1,4 +1,4 @@
-BIN:=addr_book
+BIN:=../bin/addr_book
 SRCS:=$(wildcard *.c)
 OBJS:=$(SRCS:.c=.o)
 
@@ -12,10 +12,11 @@ LDLIBS:=-llist
 all: $(BIN)
 
 $(BIN): $(OBJS)
-	$(CC) -o ../bin/$@ $^ $(LDFLAGS) $(LDLIBS)
+	mkdir -p ../bin
+	$(CC) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 %.o:%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $^
 
 clean:
-	$(RM) ../bin/$(BIN) $(OBJS)
+	$(RM) $(BIN) $(OBJS)
