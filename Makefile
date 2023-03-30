@@ -17,6 +17,7 @@ SRCEXT := c
 
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+LIBRARY_SOURCE_DIRS := $(shell find $(LIBDIR) -mindepth 1 -maxdepth 1 -type d)
 TARGET = bin/address_book
 
 #################################
@@ -24,10 +25,14 @@ TARGET = bin/address_book
 #################################
 
 .PHONY: all
-all: ${TARGET}
+all: libs ${TARGET}
 
 .PHONY: fresh
 fresh: clean all
+
+.PHONY: libs
+libs:
+	make -C $(LIBRARY_SOURCE_DIRS)
 
 .PHONY: debug
 debug: CFLAGS += -ggdb3
