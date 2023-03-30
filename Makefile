@@ -4,6 +4,7 @@
 
 CC := gcc
 CFLAGS := -Wall -Wextra
+LDFLAGS := -L lib
 LDLIBS := -llist
 
 SRCDIR := src
@@ -11,7 +12,6 @@ BUILDDIR := build
 LIBDIR := lib
 
 INCL_FLAG := -I include
-LDFLAGS := -L lib
 
 SRCEXT := c
 
