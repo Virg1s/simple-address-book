@@ -5,9 +5,12 @@ CFLAGS:=-Wall
 CPPFLAGS:=-I../include
 
 
-.PHONY: all clean
+.PHONY: all debug clean
 
 all: $(LIB)
+
+debug: CFLAGS += -ggdb3
+debug: all
 
 $(LIB): $(OBJS)
 	$(CC) -o $@ $^ -shared
@@ -17,3 +20,4 @@ $(LIB): $(OBJS)
 
 clean:
 	$(RM) $(LIB) $(OBJS)
+

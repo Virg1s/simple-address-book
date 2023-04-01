@@ -7,9 +7,12 @@ CFLAGS:=-Wall
 LDFLAGS:=-L../lib
 LDLIBS:=-llist
 
-.PHONY: all clean
+.PHONY: all debug clean
 
 all: $(BIN)
+
+debug: CFLAGS += -ggdb3
+debug: all
 
 $(BIN): $(OBJS)
 	mkdir -p ../bin
