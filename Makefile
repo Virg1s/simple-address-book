@@ -1,15 +1,15 @@
 .PHONY: all src lib clean fresh debug
 
 all: lib src
-	export LD_LIBRARY_PATH=./lib
 
-fresh: clean all
+debug: MAKE_FLAGS := debug
+debug: all
 
-debug: MAKE_FLAGS = debug
-debug: fresh
+clean: MAKE_FLAGS := clean
+clean: all
 
-clean: MAKE_FLAGS = clean
-clean: src lib
+fresh: MAKE_FLAGS := fresh
+fresh: all
 
 src:
 	$(MAKE) $(MAKE_FLAGS) -C ./$@

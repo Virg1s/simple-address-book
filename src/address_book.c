@@ -12,7 +12,7 @@
 #define CSV_NUM_ENTRIES_PER_LINE 4
 #define MENU_USER_INPUT_MAX_LENGTH 350
 
-struct linked_list *ADDRESS_BOOK_SINGLETON;
+sig_atomic_t exit_signal = 0;
 
 FILE *open_file(char *filename)
 {
@@ -121,7 +121,7 @@ int get_user_input(char **actions, char user_input[MENU_USER_INPUT_MAX_LENGTH])
 {
 	int input_length = 0;
 
-	while (1) {
+	while (1 && !exit_signal) {
 		puts("Select an action:");
 
 		for (int i = 0; actions[i]; i++)
@@ -138,6 +138,7 @@ int get_user_input(char **actions, char user_input[MENU_USER_INPUT_MAX_LENGTH])
 					return i;
 		puts(" no such menu item\n");
 	}
+	return -1;
 }
 
 int get_args(char **arg_names, char **arg_buffers, int *arg_lengths)
@@ -165,15 +166,9 @@ void ask_for_position(int *position)
 	fflush(stdin);
 }
 
-void clean_up_and_exit(int signum)
+void set_exit_signal(int signum)
 {
-	if (signum == SIGINT) {
-		delete_list(ADDRESS_BOOK_SINGLETON);
-		printf("Address book deleted, goodbye!\n");
-		exit(0);
-	}
-
-	return;
+	exit_signal = 1;
 }
 
 void execute_request(struct linked_list **address_book_pointer,
@@ -235,19 +230,23 @@ void prompt(struct linked_list **address_book)
 
 	menu_item = get_user_input(actions, user_input);
 
-	execute_request(address_book, menu_item);
+	if (menu_item != -1)
+		execute_request(address_book, menu_item);
 }
 
 int main(void)
 {
-	signal(SIGINT, clean_up_and_exit);
-	ADDRESS_BOOK_SINGLETON = init_list();
-	struct linked_list **address_book = &ADDRESS_BOOK_SINGLETON;
+	signal(SIGINT, set_exit_signal);
+	struct linked_list *address_book = init_list();
+	read_data_from_file("addresses.csv", address_book);
 
-	read_data_from_file("addresses.csv", *address_book);
-
-	while (1)
-		prompt(address_book);
+	while (!exit_signal) {
+		printf(">>>exit signal: %d\n", exit_signal);
+		prompt(&address_book);
+	}
+	
+	delete_list(address_book);
+	printf("Address book deleted, goodbye!\n");
 
 	return 0;
 }
